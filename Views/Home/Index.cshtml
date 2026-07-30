@@ -1,8 +1,87 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="tm-hero">
+    <div class="container">
+        <div class="row align-items-center gy-5">
+            <div class="col-lg-6">
+                <p class="text-uppercase fw-semibold mb-2" style="color: var(--tm-gold); letter-spacing: 0.1em; font-size: 0.85rem;">Dota 2 · Double Elimination</p>
+                <h1 class="tm-hero-title mb-3">
+                    Compete.<br />
+                    <span>Dominate.</span><br />
+                    Win.
+                </h1>
+                <p class="tm-hero-subtitle mb-4">
+                    Organize and run professional double-elimination Dota 2 tournaments. Register your team, climb the bracket, claim the prize.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a asp-controller="Auth" asp-action="Login" class="btn btn-tm-primary px-4 py-2">Get Started</a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-tm-outline px-4 py-2">View Tournaments</a>
+                </div>
+            </div>
+            <div class="col-lg-5 offset-lg-1 d-none d-lg-block">
+                <div class="tm-card p-4 text-center" style="border-color: rgba(201,168,76,0.3);">
+                    <div style="font-size: 5rem; line-height:1;">🏆</div>
+                    <hr class="tm-divider" />
+                    <div class="row text-center g-3 mt-1">
+                        <div class="col-4">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--tm-gold);">32</div>
+                            <div style="font-size: 0.75rem; color: var(--tm-text-muted);">Teams</div>
+                        </div>
+                        <div class="col-4">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--tm-gold);">62</div>
+                            <div style="font-size: 0.75rem; color: var(--tm-text-muted);">Matches</div>
+                        </div>
+                        <div class="col-4">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--tm-gold);">1</div>
+                            <div style="font-size: 0.75rem; color: var(--tm-text-muted);">Champion</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background-color: var(--tm-surface);">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-1" style="color: var(--tm-text);">How it works</h2>
+        <hr class="tm-divider mx-auto" style="max-width: 120px;" />
+        <div class="row g-4 mt-2">
+            <div class="col-md-4">
+                <div class="tm-card p-4 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="tm-feature-icon">🎮</div>
+                        <h5 class="mb-0 fw-bold">Register</h5>
+                    </div>
+                    <p style="color: var(--tm-text-muted); font-size: 0.95rem; margin: 0;">
+                        Create an account, form your squad, and enter open tournaments before the registration deadline.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="tm-card p-4 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="tm-feature-icon">⚔</div>
+                        <h5 class="mb-0 fw-bold">Compete</h5>
+                    </div>
+                    <p style="color: var(--tm-text-muted); font-size: 0.95rem; margin: 0;">
+                        Battle through the double-elimination bracket. Lose once and fight back through the lower bracket.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="tm-card p-4 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="tm-feature-icon">💰</div>
+                        <h5 class="mb-0 fw-bold">Earn</h5>
+                    </div>
+                    <p style="color: var(--tm-text-muted); font-size: 0.95rem; margin: 0;">
+                        Top finishers share the prize pool. Track payouts in real time as the bracket resolves.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

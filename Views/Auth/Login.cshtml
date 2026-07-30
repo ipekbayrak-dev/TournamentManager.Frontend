@@ -1,0 +1,36 @@
+@model SignInRequest
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+
+<div class="d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 130px);">
+    <div style="width: 100%; max-width: 420px; padding: 1rem;">
+        <div class="tm-card p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div style="font-size: 2.5rem; line-height: 1; margin-bottom: 0.5rem;">⚔</div>
+                <h2 class="fw-bold mb-1" style="color: var(--tm-text);">Welcome back</h2>
+                <p style="color: var(--tm-text-muted); font-size: 0.9rem; margin: 0;">Sign in to your account</p>
+            </div>
+
+            <hr class="tm-divider" />
+
+            @if (ViewData["Error"] != null)
+            {
+                <div class="alert-tm-error p-3 mb-3 rounded">@ViewData["Error"]</div>
+            }
+
+            <form asp-controller="Auth" asp-action="Login" method="post">
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" />
+                </div>
+                <button type="submit" class="btn btn-tm-primary w-100 py-2">Sign In</button>
+            </form>
+        </div>
+    </div>
+</div>
