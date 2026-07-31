@@ -6,8 +6,16 @@ namespace TournamentManager.Frontend.Controllers;
 
 public class HomeController : Controller
 {
+    private readonly IConfiguration _configuration;
+
+    public HomeController(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
     public IActionResult Index()
     {
+        ViewData["ApiUrl"] = _configuration["ApiSettings:BaseUrl"];
         return View();
     }
 
