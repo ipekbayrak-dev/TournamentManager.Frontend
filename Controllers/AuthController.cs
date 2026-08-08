@@ -6,12 +6,15 @@ namespace TournamentManager.Frontend.Controllers
     public class AuthController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
+
         public AuthController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
+
         [HttpGet]
         public IActionResult Login() => View();
+
         [HttpPost]
         public async Task<IActionResult> Login(SignInRequest signInRequest)
         {
@@ -39,6 +42,33 @@ namespace TournamentManager.Frontend.Controllers
             });
 
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult Register() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> Register(SignUpRequest signUpRequest)
+        {
+            var client = _httpClientFactory.CreateClient("TournamentManagerApi");
+            var response = await client.PostAsJsonAsync("/api/Auth/register", signUpRequest);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                ViewData["Error"] = string.IsNullOrWhiteSpace(error) ? "Registration failed. Please try again." : error;
+                return View(signUpRequest);
+            }
+
+            TempData["Success"] = "Account created! You can now sign in.";
+            return RedirectToAction("Login");
+        }
+
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("AccessToken");
+            Response.Cookies.Delete("RefreshToken");
+            return RedirectToAction("Login");
         }
     }
 }

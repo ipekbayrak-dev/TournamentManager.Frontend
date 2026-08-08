@@ -1,0 +1,59 @@
+@model SignUpRequest
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_Layout";
+}
+
+<div class="d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 130px);">
+    <div style="width: 100%; max-width: 480px; padding: 1rem;">
+        <div class="tm-card p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div style="font-size: 2.5rem; line-height: 1; margin-bottom: 0.5rem;">⚔</div>
+                <h2 class="fw-bold mb-1" style="color: var(--tm-text);">Create account</h2>
+                <p style="color: var(--tm-text-muted); font-size: 0.9rem; margin: 0;">Join the tournament</p>
+            </div>
+
+            <hr class="tm-divider" />
+
+            @if (ViewData["Error"] != null)
+            {
+                <div class="alert-tm-error p-3 mb-3 rounded">@ViewData["Error"]</div>
+            }
+
+            <form asp-controller="Auth" asp-action="Register" method="post">
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label asp-for="FirstName" class="form-label">First name</label>
+                        <input asp-for="FirstName" class="form-control" placeholder="Ada" />
+                    </div>
+                    <div class="col-6">
+                        <label asp-for="LastName" class="form-label">Last name</label>
+                        <input asp-for="LastName" class="form-control" placeholder="Lovelace" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="DisplayName" class="form-label">Display name</label>
+                    <input asp-for="DisplayName" class="form-control" placeholder="Your in-game name" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" class="form-control" placeholder="••••••••" autocomplete="new-password" />
+                </div>
+                <div class="mb-4">
+                    <label asp-for="ConfirmPassword" class="form-label">Confirm password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" autocomplete="new-password" />
+                </div>
+                <button type="submit" class="btn btn-tm-primary w-100 py-2">Create account</button>
+            </form>
+
+            <p class="text-center mt-3 mb-0" style="color: var(--tm-text-muted); font-size: 0.875rem;">
+                Already have an account?
+                <a asp-controller="Auth" asp-action="Login" style="color: var(--tm-gold); text-decoration: none; font-weight: 600;">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>

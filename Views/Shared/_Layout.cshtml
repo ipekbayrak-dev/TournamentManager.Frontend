@@ -22,9 +22,21 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a>
-                        </li>
+                        @if (Context.Request.Cookies["AccessToken"] != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Auth" asp-action="Logout">Logout</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item d-flex align-items-center">
+                                <a class="btn btn-tm-outline btn-sm px-3" asp-controller="Auth" asp-action="Register">Sign up</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
