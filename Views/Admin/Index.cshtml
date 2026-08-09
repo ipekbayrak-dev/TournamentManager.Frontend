@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Admin Panel";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="mb-4">
+        <h1 class="fw-bold mb-1" style="color: var(--tm-text);">Admin Panel</h1>
+        <p style="color: var(--tm-text-muted); margin: 0;">Manage tournaments, teams, and players</p>
+    </div>
+
+    <hr class="tm-divider" />
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="tm-card p-4 h-100 d-flex flex-column">
+                <div class="tm-feature-icon mb-3">⚔</div>
+                <h5 class="fw-bold mb-1" style="color: var(--tm-text);">Tournaments</h5>
+                <p style="color: var(--tm-text-muted); font-size: 0.875rem; flex: 1;">Create and manage tournaments, set dates, locations and status.</p>
+                <a asp-controller="Admin" asp-action="Tournaments" class="btn btn-tm-primary w-100 py-2 mt-2">
+                    Manage →
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="tm-card p-4 h-100 d-flex flex-column">
+                <div class="tm-feature-icon mb-3">🛡</div>
+                <h5 class="fw-bold mb-1" style="color: var(--tm-text);">Teams</h5>
+                <p style="color: var(--tm-text-muted); font-size: 0.875rem; flex: 1;">Create and manage teams, assign regions and logos.</p>
+                <a asp-controller="Admin" asp-action="Teams" class="btn btn-tm-primary w-100 py-2 mt-2">
+                    Manage →
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="tm-card p-4 h-100 d-flex flex-column">
+                <div class="tm-feature-icon mb-3">🎮</div>
+                <h5 class="fw-bold mb-1" style="color: var(--tm-text);">Players</h5>
+                <p style="color: var(--tm-text-muted); font-size: 0.875rem; flex: 1;">View and manage player profiles and team assignments.</p>
+                <a asp-controller="Admin" asp-action="Players" class="btn btn-tm-primary w-100 py-2 mt-2">
+                    Manage →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

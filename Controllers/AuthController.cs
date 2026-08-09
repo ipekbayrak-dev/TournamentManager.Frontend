@@ -41,6 +41,15 @@ namespace TournamentManager.Frontend.Controllers
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
 
+            if (IsAdminToken(token.AccessToken))
+            {
+                Response.Cookies.Append("IsAdmin", "true", new CookieOptions
+                {
+                    Secure = true,
+                    Expires = token.ExpiryTime
+                });
+            }
+
             return RedirectToAction("Profile", "Player");
         }
 
@@ -67,7 +76,20 @@ namespace TournamentManager.Frontend.Controllers
         {
             Response.Cookies.Delete("AccessToken");
             Response.Cookies.Delete("RefreshToken");
+            Response.Cookies.Delete("IsAdmin");
             return RedirectToAction("Login");
+        }
+
+        private static bool IsAdminToken(string token)
+        {
+            try
+            {
+                var payload = token.Split('.')[1];
+                var padded = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+                var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(padded));
+                return json.Contains("\"Admin\"");
+            }
+            catch { return false; }
         }
     }
 }

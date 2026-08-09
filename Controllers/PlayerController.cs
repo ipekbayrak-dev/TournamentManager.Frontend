@@ -1,30 +1,29 @@
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using TournamentManager.Frontend.Models.Player;
 using TournamentManager.Frontend.Models.Team;
 
 namespace TournamentManager.Frontend.Controllers
 {
-    public class PlayerController : Controller
+    public class PlayerController : BaseController
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-
-        public PlayerController(IHttpClientFactory httpClientFactory)
-        {
-            _httpClientFactory = httpClientFactory;
-        }
+        public PlayerController(IHttpClientFactory httpClientFactory) : base(httpClientFactory) { }
 
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var token = Request.Cookies["AccessToken"];
-            if (token is null)
-                return RedirectToAction("Login", "Auth");
-
-            var client = _httpClientFactory.CreateClient("TournamentManagerApi");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null)
+            {
+                return redirect!;
+            }
 
             var profileResponse = await client.GetAsync("api/Player/profile");
+
+            var check = CheckUnauthorized(profileResponse);
+            if (check is not null)
+            {
+                return check;
+            }
 
             if (profileResponse.IsSuccessStatusCode)
             {
@@ -33,6 +32,12 @@ namespace TournamentManager.Frontend.Controllers
             }
 
             var teamsResponse = await client.GetAsync("api/Team");
+            var teamsCheck = CheckUnauthorized(teamsResponse);
+            if (teamsCheck is not null)
+            {
+                return teamsCheck;
+            }
+
             var teams = await teamsResponse.Content.ReadFromJsonAsync<List<TeamResponse>>();
             ViewBag.Teams = teams ?? new List<TeamResponse>();
             return View("Create");
@@ -41,14 +46,19 @@ namespace TournamentManager.Frontend.Controllers
         [HttpPost]
         public async Task<IActionResult> Profile([FromForm] CreatePlayerRequest createPlayerRequest)
         {
-            var token = Request.Cookies["AccessToken"];
-            if (token is null)
-                return RedirectToAction("Login", "Auth");
-
-            var client = _httpClientFactory.CreateClient("TournamentManagerApi");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null)
+            {
+                return redirect!;
+            }
 
             var response = await client.PostAsJsonAsync("api/Player/profile", createPlayerRequest);
+
+            var check = CheckUnauthorized(response);
+            if (check is not null)
+            {
+                return check;
+            }
 
             if (!response.IsSuccessStatusCode)
             {

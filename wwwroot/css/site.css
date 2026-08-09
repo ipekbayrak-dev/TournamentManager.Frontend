@@ -172,7 +172,7 @@ main {
 
 /* ── Footer ── */
 .tm-footer {
-    background-color: var(--tm-surface);
+    background-color: #06040c;
     border-top: 1px solid var(--tm-purple-dark);
     color: var(--tm-text-muted);
     font-size: 0.85rem;

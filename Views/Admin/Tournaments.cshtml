@@ -1,0 +1,82 @@
+@model List<TournamentResponse>
+@{
+    ViewData["Title"] = "Manage Tournaments";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: var(--tm-text);">Tournaments</h1>
+            <p style="color: var(--tm-text-muted); margin: 0;">@Model?.Count tournament(s) in the system</p>
+        </div>
+        <a asp-controller="Admin" asp-action="CreateTournament" class="btn btn-tm-primary px-4 py-2">
+            + Create New
+        </a>
+    </div>
+
+    <hr class="tm-divider" />
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚔</div>
+            <p style="color: var(--tm-text-muted);">No tournaments yet.</p>
+            <a asp-controller="Admin" asp-action="CreateTournament" class="btn btn-tm-primary px-4 py-2">Create the first one</a>
+        </div>
+    }
+    else
+    {
+        <div class="tm-card table-responsive">
+            <table class="table mb-0" style="color: var(--tm-text); --bs-table-bg: transparent; --bs-table-color: var(--tm-text); --bs-table-border-color: var(--tm-purple-dark);">
+                <thead>
+                    <tr style="border-color: var(--tm-purple-dark); color: var(--tm-text); font-size: 0.85rem; border-bottom: 1px solid var(--tm-gold);">
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr style="border-color: var(--tm-purple-dark);">
+                            <td class="fw-semibold">@t.Name</td>
+                            <td style="color: var(--tm-text);">@(t.Location ?? "—")</td>
+                            <td style="color: var(--tm-text);">@t.StartDate.ToString("MMM dd, yyyy")</td>
+                            <td style="color: var(--tm-text);">@t.EndDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <span class="px-2 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 700;
+                                    @(t.Status == TournamentStatus.Ongoing ? "background: rgba(30,180,30,0.3); color: #70f070;" :
+                                      t.Status == TournamentStatus.RegistrationOpen ? "background: rgba(201,168,76,0.3); color: #e8c060;" :
+                                      t.Status == TournamentStatus.Upcoming ? "background: rgba(140,60,220,0.3); color: #d0a0ff;" :
+                                      t.Status == TournamentStatus.Completed ? "background: rgba(140,140,140,0.3); color: #c0c0c0;" :
+                                      "background: rgba(220,50,50,0.3); color: #ff9090;")">
+                                    @(t.Status switch {
+                                        TournamentStatus.RegistrationOpen => "Registration Open",
+                                        _ => t.Status.ToString()
+                                    })
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Admin" asp-action="EditTournament" asp-route-id="@t.Id"
+                                   class="btn btn-sm btn-tm-outline me-1">Edit</a>
+                                <form asp-controller="Admin" asp-action="DeleteTournament" method="post"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Delete @t.Name? This cannot be undone.');">
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <button type="submit" class="btn btn-sm"
+                                            style="border: 1px solid rgba(220,50,50,0.5); color: #ff9090;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

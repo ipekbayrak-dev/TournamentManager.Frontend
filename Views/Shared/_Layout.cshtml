@@ -1,3 +1,4 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration _config
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,6 +28,13 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Tournament" asp-action="Index">Tournaments</a>
                             </li>
+                            @if (Context.Request.Cookies["IsAdmin"] == "true")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Index"
+                                       style="color: var(--tm-gold);">Admin</a>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Auth" asp-action="Logout">Logout</a>
                             </li>
@@ -52,7 +60,14 @@
 
     <footer class="tm-footer mt-auto">
         <div class="container text-center">
-            &copy; 2026 Tournament Manager
+            <div>&copy; 2026 Tournament Manager</div>
+            <div style="margin-top: 0.25rem; font-size: 0.8rem;">
+                Looking for the REST API?
+                <a href="@_config["ApiSettings:BaseUrl"]" target="_blank"
+                   style="color: var(--tm-gold); text-decoration: none; font-weight: 600;">
+                    Developer API →
+                </a>
+            </div>
         </div>
     </footer>
 
