@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using TournamentManager.Frontend.Models.Player;
 using TournamentManager.Frontend.Models.Tournament;
 
 namespace TournamentManager.Frontend.Controllers
@@ -6,6 +8,14 @@ namespace TournamentManager.Frontend.Controllers
     public class AdminController : BaseController
     {
         public AdminController(IHttpClientFactory httpClientFactory) : base(httpClientFactory) { }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            var check = CheckAdminAccess();
+            if (check is not null) context.Result = check;
+            base.OnActionExecuting(context);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index() => View();
         [HttpGet]
@@ -140,6 +150,69 @@ namespace TournamentManager.Frontend.Controllers
             }
 
             return RedirectToAction("Tournaments");
+        }
+        [HttpGet]
+        public async Task<IActionResult> PendingPlayers()
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.GetAsync("api/Player/pending");
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+            var player = await response.Content.ReadFromJsonAsync<List<PlayerResponse>>();
+
+            return View(player);
+
+        }
+        [HttpPost]
+        public async Task<IActionResult> ApprovePlayer(Guid id)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.PutAsJsonAsync($"api/Player/{id}/status", 2);
+
+            var check = CheckUnauthorized(response);
+            if (check is not null)
+            {
+                return check;
+            }
+
+            return RedirectToAction("PendingPlayers");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectPlayer(Guid id)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.PutAsJsonAsync($"api/Player/{id}/status", 3);
+
+            var check = CheckUnauthorized(response);
+            if (check is not null)
+            {
+                return check;
+            }
+
+            return RedirectToAction("PendingPlayers");
         }
     }
 }

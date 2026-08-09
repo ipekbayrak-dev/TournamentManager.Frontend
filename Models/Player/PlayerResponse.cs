@@ -9,6 +9,7 @@ namespace TournamentManager.Frontend.Models.Player
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
         public required string CountryCode { get; set; }
+        public PlayerStatus Status { get; set; }
         public DotaPosition Position { get; set; }
         public bool IsCaptain { get; set; }
         public string? SteamId { get; set; }

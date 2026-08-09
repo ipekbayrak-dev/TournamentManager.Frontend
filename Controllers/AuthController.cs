@@ -50,7 +50,7 @@ namespace TournamentManager.Frontend.Controllers
                 });
             }
 
-            return RedirectToAction("Profile", "Player");
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
@@ -64,12 +64,49 @@ namespace TournamentManager.Frontend.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                ViewData["Error"] = "Registration failed. Please check your details and try again.";
+                var error = await response.Content.ReadAsStringAsync();
+                ViewData["Error"] = string.IsNullOrWhiteSpace(error)
+                    ? "Registration failed. Please check your details and try again."
+                    : error;
                 return View(signUpRequest);
             }
 
-            TempData["Success"] = "Account created! You can now sign in.";
-            return RedirectToAction("Login");
+            var loginResponse = await client.PostAsJsonAsync("/api/Auth/login", new SignInRequest
+            {
+                Email = signUpRequest.Email,
+                Password = signUpRequest.Password
+            });
+
+            if (!loginResponse.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Account created! You can now sign in.";
+                return RedirectToAction("Login");
+            }
+
+            var token = await loginResponse.Content.ReadFromJsonAsync<TokenResponse>();
+            Response.Cookies.Append("AccessToken", token!.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = token.ExpiryTime
+            });
+            Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            });
+
+            if (IsAdminToken(token.AccessToken))
+            {
+                Response.Cookies.Append("IsAdmin", "true", new CookieOptions
+                {
+                    Secure = true,
+                    Expires = token.ExpiryTime
+                });
+            }
+
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult Logout()

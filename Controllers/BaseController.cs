@@ -34,6 +34,26 @@ namespace TournamentManager.Frontend.Controllers
             return null;
         }
 
+        protected IActionResult? CheckAdminAccess()
+        {
+            var token = Request.Cookies["AccessToken"];
+            if (string.IsNullOrEmpty(token) || !IsAdminJwt(token))
+                return RedirectToAction("Index", "Home");
+            return null;
+        }
+
+        private static bool IsAdminJwt(string token)
+        {
+            try
+            {
+                var payload = token.Split('.')[1];
+                var padded = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+                var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(padded));
+                return json.Contains("\"Admin\"");
+            }
+            catch { return false; }
+        }
+
         private IActionResult ClearAndRedirectToLogin()
         {
             Response.Cookies.Delete("AccessToken");

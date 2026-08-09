@@ -31,13 +31,29 @@
                     <div style="font-size: 3rem; line-height: 1; margin-bottom: 0.75rem;">🎮</div>
                     <h2 class="fw-bold mb-1" style="color: var(--tm-text);">@Model.Handle</h2>
                     <p style="color: var(--tm-text-muted); font-size: 0.9rem; margin: 0;">@Model.FirstName @Model.LastName</p>
-                    @if (Model.IsCaptain)
-                    {
-                        <span class="mt-2 d-inline-block px-2 py-1 rounded-pill"
-                              style="font-size: 0.7rem; font-weight: 600; background: rgba(201,168,76,0.2); color: var(--tm-gold);">
-                            ⭐ Captain
-                        </span>
-                    }
+                    <div class="mt-2 d-flex justify-content-center gap-2 flex-wrap">
+                        @if (Model.IsCaptain)
+                        {
+                            <span class="px-2 py-1 rounded-pill"
+                                  style="font-size: 0.7rem; font-weight: 600; background: rgba(201,168,76,0.2); color: var(--tm-gold);">
+                                ⭐ Captain
+                            </span>
+                        }
+                        @if (Model.Status == PlayerStatus.Pending)
+                        {
+                            <span class="px-2 py-1 rounded-pill"
+                                  style="font-size: 0.7rem; font-weight: 600; background: rgba(140,60,220,0.3); color: #d0a0ff;">
+                                ⏳ Pending Approval
+                            </span>
+                        }
+                        else if (Model.Status == PlayerStatus.Rejected)
+                        {
+                            <span class="px-2 py-1 rounded-pill"
+                                  style="font-size: 0.7rem; font-weight: 600; background: rgba(220,50,50,0.3); color: #ff9090;">
+                                ✕ Rejected
+                            </span>
+                        }
+                    </div>
                 </div>
 
                 <hr class="tm-divider" />
@@ -62,6 +78,14 @@
                 }
 
                 <hr class="tm-divider" />
+
+                @if (Model.Status == PlayerStatus.Rejected)
+                {
+                    <a asp-controller="Player" asp-action="EditProfile" class="btn w-100 py-2 mb-2"
+                       style="background: rgba(220,50,50,0.15); color: #ff9090; border: 1px solid rgba(220,50,50,0.4);">
+                        ✎ Edit &amp; Resubmit
+                    </a>
+                }
 
                 <a asp-controller="Tournament" asp-action="Index" class="btn btn-tm-primary w-100 py-2">
                     View Tournaments →

@@ -1,0 +1,76 @@
+@model List<PlayerResponse>
+@{
+    ViewData["Title"] = "Pending Players";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="mb-4">
+        <h1 class="fw-bold mb-1" style="color: var(--tm-text);">Pending Players</h1>
+        <p style="color: var(--tm-text-muted); margin: 0;">@Model?.Count player(s) awaiting approval</p>
+    </div>
+
+    <hr class="tm-divider" />
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">✓</div>
+            <p style="color: var(--tm-text-muted);">No pending requests — all caught up.</p>
+        </div>
+    }
+    else
+    {
+        <div class="tm-card table-responsive">
+            <table class="table mb-0" style="color: var(--tm-text); --bs-table-bg: transparent; --bs-table-color: var(--tm-text); --bs-table-border-color: var(--tm-purple-dark);">
+                <thead>
+                    <tr style="color: var(--tm-text); font-size: 0.85rem; border-bottom: 1px solid var(--tm-gold);">
+                        <th>Handle</th>
+                        <th>Name</th>
+                        <th>Country</th>
+                        <th>Position</th>
+                        <th>Captain</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr style="border-color: var(--tm-purple-dark);">
+                            <td class="fw-semibold">@p.Handle</td>
+                            <td>@p.FirstName @p.LastName</td>
+                            <td>@p.CountryCode.ToUpperInvariant()</td>
+                            <td>@(p.Position switch {
+                                DotaPosition.Carry => "Carry",
+                                DotaPosition.Midlaner => "Midlaner",
+                                DotaPosition.Offlaner => "Offlaner",
+                                DotaPosition.SoftSupport => "Soft Support",
+                                DotaPosition.HardSupport => "Hard Support",
+                                DotaPosition.Coach => "Coach",
+                                _ => p.Position.ToString()
+                            })</td>
+                            <td>@(p.IsCaptain ? "Yes" : "No")</td>
+                            <td class="text-end">
+                                <form asp-controller="Admin" asp-action="ApprovePlayer" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button type="submit" class="btn btn-sm me-1"
+                                            style="background: rgba(30,180,30,0.2); color: #70f070; border: 1px solid rgba(30,180,30,0.4);">
+                                        Approve
+                                    </button>
+                                </form>
+                                <form asp-controller="Admin" asp-action="RejectPlayer" method="post" style="display:inline;"
+                                      onsubmit="return confirm('Reject @p.Handle?');">
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button type="submit" class="btn btn-sm"
+                                            style="background: rgba(220,50,50,0.2); color: #ff9090; border: 1px solid rgba(220,50,50,0.4);">
+                                        Reject
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
