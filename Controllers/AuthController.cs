@@ -41,7 +41,7 @@ namespace TournamentManager.Frontend.Controllers
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Profile", "Player");
         }
 
         [HttpGet]
@@ -55,8 +55,7 @@ namespace TournamentManager.Frontend.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                ViewData["Error"] = string.IsNullOrWhiteSpace(error) ? "Registration failed. Please try again." : error;
+                ViewData["Error"] = "Registration failed. Please check your details and try again.";
                 return View(signUpRequest);
             }
 

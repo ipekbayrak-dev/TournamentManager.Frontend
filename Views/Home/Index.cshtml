@@ -16,8 +16,22 @@
                     Organize and run professional double-elimination Dota 2 tournaments. Register your team, climb the bracket, claim the prize.
                 </p>
                 <div class="d-flex gap-3 flex-wrap">
-                    <a asp-controller="Auth" asp-action="Login" class="btn btn-tm-primary px-4 py-2">Get Started</a>
-                    <a asp-controller="Tournament" asp-action="Index" class="btn btn-tm-outline px-4 py-2">View Tournaments</a>
+                    @if (Context.Request.Cookies["AccessToken"] != null)
+                    {
+                        <a asp-controller="Tournament" asp-action="Index" class="btn btn-tm-primary px-4 py-2">View Tournaments</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Auth" asp-action="Login" class="btn btn-tm-primary px-4 py-2">Get Started</a>
+                    }
+                    @if (Context.Request.Cookies["AccessToken"] != null)
+                    {
+                        <a asp-controller="Player" asp-action="Profile" class="btn btn-tm-outline px-4 py-2">My Profile</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Tournament" asp-action="Index" class="btn btn-tm-outline px-4 py-2">View Tournaments</a>
+                    }
                 </div>
             </div>
             <div class="col-lg-5 offset-lg-1 d-none d-lg-block">

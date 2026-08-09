@@ -1,0 +1,72 @@
+@model PlayerResponse
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_Layout";
+    var positionLabel = Model.Position switch
+    {
+        DotaPosition.Carry => "Carry",
+        DotaPosition.Midlaner => "Midlaner",
+        DotaPosition.Offlaner => "Offlaner",
+        DotaPosition.SoftSupport => "Soft Support",
+        DotaPosition.HardSupport => "Hard Support",
+        DotaPosition.Coach => "Coach",
+        _ => Model.Position.ToString()
+    };
+}
+
+<div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: var(--tm-text);">My Profile</h1>
+            <p style="color: var(--tm-text-muted); margin: 0;">Your player identity</p>
+        </div>
+    </div>
+
+    <hr class="tm-divider" />
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="tm-card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div style="font-size: 3rem; line-height: 1; margin-bottom: 0.75rem;">🎮</div>
+                    <h2 class="fw-bold mb-1" style="color: var(--tm-text);">@Model.Handle</h2>
+                    <p style="color: var(--tm-text-muted); font-size: 0.9rem; margin: 0;">@Model.FirstName @Model.LastName</p>
+                    @if (Model.IsCaptain)
+                    {
+                        <span class="mt-2 d-inline-block px-2 py-1 rounded-pill"
+                              style="font-size: 0.7rem; font-weight: 600; background: rgba(201,168,76,0.2); color: var(--tm-gold);">
+                            ⭐ Captain
+                        </span>
+                    }
+                </div>
+
+                <hr class="tm-divider" />
+
+                <div class="row g-3">
+                    <div class="col-6">
+                        <p class="form-label mb-1">Position</p>
+                        <p style="color: var(--tm-text); font-weight: 600; margin: 0;">@positionLabel</p>
+                    </div>
+                    <div class="col-6">
+                        <p class="form-label mb-1">Country</p>
+                        <p style="color: var(--tm-text); font-weight: 600; margin: 0;">@Model.CountryCode.ToUpperInvariant()</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.SteamId))
+                {
+                    <div class="mt-3">
+                        <p class="form-label mb-1">Steam ID</p>
+                        <p style="color: var(--tm-text); font-weight: 600; margin: 0;">@Model.SteamId</p>
+                    </div>
+                }
+
+                <hr class="tm-divider" />
+
+                <a asp-controller="Tournament" asp-action="Index" class="btn btn-tm-primary w-100 py-2">
+                    View Tournaments →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
