@@ -1,0 +1,74 @@
+@model UpdateTeamRequest
+@{
+    ViewData["Title"] = "Edit Team";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="mb-4">
+        <h1 class="fw-bold mb-1" style="color: var(--tm-text);">Edit Team</h1>
+        <p style="color: var(--tm-text-muted); margin: 0;">Update team details</p>
+    </div>
+
+    <hr class="tm-divider" />
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="tm-card p-4 p-md-5">
+
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="alert-tm-error p-3 mb-3 rounded">@ViewData["Error"]</div>
+                }
+
+                <form asp-controller="Admin" asp-action="EditTeam" method="post">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-8">
+                            <label asp-for="Name" class="form-label">Team name</label>
+                            <input asp-for="Name" class="form-control" placeholder="OG Esports" />
+                            <span asp-validation-for="Name" class="text-danger" style="font-size:0.8rem;"></span>
+                        </div>
+                        <div class="col-4">
+                            <label asp-for="Handle" class="form-label">Handle</label>
+                            <input asp-for="Handle" class="form-control" placeholder="OG" />
+                            <span asp-validation-for="Handle" class="text-danger" style="font-size:0.8rem;"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Logo" class="form-label">Logo URL</label>
+                        <input asp-for="Logo" class="form-control" placeholder="https://..." />
+                        <span asp-validation-for="Logo" class="text-danger" style="font-size:0.8rem;"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Region" class="form-label">Region</label>
+                        <select asp-for="Region" class="form-select">
+                            <option value="">— select —</option>
+                            <option value="1">Western Europe</option>
+                            <option value="2">Eastern Europe</option>
+                            <option value="3">China</option>
+                            <option value="4">Southeast Asia</option>
+                            <option value="5">North America</option>
+                            <option value="6">South America</option>
+                        </select>
+                        <span asp-validation-for="Region" class="text-danger" style="font-size:0.8rem;"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-tm-primary w-100 py-2">Save Changes</button>
+                    <a asp-controller="Admin" asp-action="Teams" class="btn w-100 py-2 mt-2"
+                       style="background: transparent; color: var(--tm-text-muted); border: 1px solid var(--tm-purple-dark);">
+                        Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

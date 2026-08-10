@@ -1,0 +1,89 @@
+@model UpdatePlayerRequest
+@{
+    ViewData["Title"] = "Edit Player";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="mb-4">
+        <h1 class="fw-bold mb-1" style="color: var(--tm-text);">Edit Player</h1>
+        <p style="color: var(--tm-text-muted); margin: 0;">Update player details</p>
+    </div>
+
+    <hr class="tm-divider" />
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="tm-card p-4 p-md-5">
+
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="alert-tm-error p-3 mb-3 rounded">@ViewData["Error"]</div>
+                }
+
+                <form asp-controller="Admin" asp-action="EditPlayer" method="post">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label asp-for="Handle" class="form-label">Handle</label>
+                        <input asp-for="Handle" class="form-control" />
+                        <span asp-validation-for="Handle" class="text-danger" style="font-size:0.8rem;"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label asp-for="FirstName" class="form-label">First name</label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger" style="font-size:0.8rem;"></span>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="LastName" class="form-label">Last name</label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger" style="font-size:0.8rem;"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label asp-for="CountryCode" class="form-label">Country code</label>
+                            <input asp-for="CountryCode" class="form-control" maxlength="2" />
+                            <span asp-validation-for="CountryCode" class="text-danger" style="font-size:0.8rem;"></span>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="Position" class="form-label">Position</label>
+                            <select asp-for="Position" class="form-select">
+                                <option value="1">Carry</option>
+                                <option value="2">Midlaner</option>
+                                <option value="3">Offlaner</option>
+                                <option value="4">Soft Support</option>
+                                <option value="5">Hard Support</option>
+                                <option value="6">Coach</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SteamId" class="form-label">Steam ID <span style="color: var(--tm-text-muted); font-size: 0.8rem;">(optional)</span></label>
+                        <input asp-for="SteamId" class="form-control" />
+                    </div>
+
+                    <div class="mb-4 d-flex align-items-center gap-2">
+                        <input asp-for="IsCaptain" type="checkbox" class="form-check-input" id="IsCaptain" style="width: 1.1rem; height: 1.1rem; accent-color: var(--tm-purple-light);" />
+                        <label for="IsCaptain" class="form-label mb-0" style="cursor: pointer;">Team captain</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-tm-primary w-100 py-2">Save Changes</button>
+                    <a asp-controller="Admin" asp-action="Players" class="btn w-100 py-2 mt-2"
+                       style="background: transparent; color: var(--tm-text-muted); border: 1px solid var(--tm-purple-dark);">
+                        Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

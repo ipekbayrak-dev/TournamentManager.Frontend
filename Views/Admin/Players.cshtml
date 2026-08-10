@@ -1,0 +1,81 @@
+@model List<PlayerResponse>
+@{
+    ViewData["Title"] = "Manage Players";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: var(--tm-text);">Players</h1>
+            <p style="color: var(--tm-text-muted); margin: 0;">@Model?.Count player(s) in the system</p>
+        </div>
+    </div>
+
+    <hr class="tm-divider" />
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center py-5">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🎮</div>
+            <p style="color: var(--tm-text-muted);">No players yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="tm-card table-responsive">
+            <table class="table mb-0" style="color: var(--tm-text); --bs-table-bg: transparent; --bs-table-color: var(--tm-text); --bs-table-border-color: var(--tm-purple-dark);">
+                <thead>
+                    <tr style="border-color: var(--tm-purple-dark); color: var(--tm-text); font-size: 0.85rem; border-bottom: 1px solid var(--tm-gold);">
+                        <th>Handle</th>
+                        <th>Name</th>
+                        <th>Country</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr style="border-color: var(--tm-purple-dark);">
+                            <td class="fw-semibold">@p.Handle</td>
+                            <td>@p.FirstName @p.LastName</td>
+                            <td>@p.CountryCode.ToUpperInvariant()</td>
+                            <td>@(p.Position switch {
+                                DotaPosition.Carry => "Carry",
+                                DotaPosition.Midlaner => "Midlaner",
+                                DotaPosition.Offlaner => "Offlaner",
+                                DotaPosition.SoftSupport => "Soft Support",
+                                DotaPosition.HardSupport => "Hard Support",
+                                DotaPosition.Coach => "Coach",
+                                _ => p.Position.ToString()
+                            })</td>
+                            <td>
+                                <span class="px-2 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 700;
+                                    @(p.Status == PlayerStatus.Approved ? "background: rgba(30,180,30,0.3); color: #70f070;" :
+                                      p.Status == PlayerStatus.Pending ? "background: rgba(140,60,220,0.3); color: #d0a0ff;" :
+                                      "background: rgba(220,50,50,0.3); color: #ff9090;")">
+                                    @p.Status
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Admin" asp-action="EditPlayer" asp-route-id="@p.Id"
+                                   class="btn btn-sm btn-tm-outline me-1">Edit</a>
+                                <form asp-controller="Admin" asp-action="DeletePlayer" method="post"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Delete @p.Handle? This cannot be undone.');">
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button type="submit" class="btn btn-sm"
+                                            style="border: 1px solid rgba(220,50,50,0.5); color: #ff9090;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

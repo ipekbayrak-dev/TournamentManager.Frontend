@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using TournamentManager.Frontend.Models.Player;
+using TournamentManager.Frontend.Models.Team;
 using TournamentManager.Frontend.Models.Tournament;
 
 namespace TournamentManager.Frontend.Controllers
@@ -213,6 +214,245 @@ namespace TournamentManager.Frontend.Controllers
             }
 
             return RedirectToAction("PendingPlayers");
+        }
+        [HttpGet]
+        public async Task<IActionResult> Teams()
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.GetAsync("api/Team");
+
+            var check = CheckUnauthorized(response);
+            if (check is not null)
+            {
+                return check;
+            }
+
+            var teams = await response.Content.ReadFromJsonAsync<List<TeamResponse>>();
+
+            return View(teams);
+        }
+        [HttpGet]
+        public async Task<IActionResult> CreateTeam() => View();
+        [HttpPost]
+        public async Task<IActionResult> CreateTeam([FromForm] CreateTeamRequest createTeamRequest)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.PostAsJsonAsync("api/Team", createTeamRequest);
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewData["Error"] = await response.Content.ReadAsStringAsync();
+                return View(createTeamRequest);
+            }
+            return RedirectToAction("Teams");
+        }
+        [HttpGet]
+        public async Task<IActionResult> EditTeam(Guid id)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.GetAsync($"api/Team/{id}");
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+            var team = await response.Content.ReadFromJsonAsync<TeamResponse>();
+
+            var model = new UpdateTeamRequest
+            {
+                Id = id,
+                Handle = team!.Handle,
+                Logo = team.Logo,
+                Name = team.Name,
+                Region = team.Region
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditTeam([FromForm] UpdateTeamRequest updateTeamRequest)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.PutAsJsonAsync($"api/Team/{updateTeamRequest.Id}", updateTeamRequest);
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewData["Error"] = await response.Content.ReadAsStringAsync();
+                return View(updateTeamRequest);
+            }
+
+            return RedirectToAction("Teams");
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteTeam(Guid id)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.DeleteAsync($"api/Team/{id}");
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+            return RedirectToAction("Teams");
+        }
+        [HttpGet]
+        public async Task<IActionResult> Players()
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.GetAsync("api/Player");
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+            var players = await response.Content.ReadFromJsonAsync<List<PlayerResponse>>();
+
+            return View(players);
+        }
+        [HttpGet]
+        public async Task<IActionResult> EditPlayer(Guid id)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.GetAsync($"api/Player/{id}");
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+            var team = await response.Content.ReadFromJsonAsync<PlayerResponse>();
+
+            var model = new UpdatePlayerRequest
+            {
+                Id = id,
+                TeamId = team!.TeamId,
+                CountryCode = team.CountryCode,
+                FirstName = team.FirstName,
+                Handle = team.Handle,
+                LastName = team.LastName,
+                Position = team.Position,
+                IsCaptain = team.IsCaptain,
+                SteamId = team.SteamId
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditPlayer([FromForm] UpdatePlayerRequest updatePlayerRequest)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.PutAsJsonAsync($"api/Player/{updatePlayerRequest.Id}", updatePlayerRequest);
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewData["Error"] = await response.Content.ReadAsStringAsync();
+                return View(updatePlayerRequest);
+            }
+
+            return RedirectToAction("Players");
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeletePlayer(Guid id)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+
+            if (client is null)
+            {
+                return redirect!;
+            }
+
+            var response = await client.DeleteAsync($"api/Player/{id}");
+
+            var check = CheckUnauthorized(response);
+
+            if (check is not null)
+            {
+                return check;
+            }
+
+            return RedirectToAction("Players");
         }
     }
 }
