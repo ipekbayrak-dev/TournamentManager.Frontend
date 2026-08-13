@@ -1,0 +1,181 @@
+@model TournamentResponse
+@using TournamentManager.Frontend.Models.Team
+@using TournamentManager.Frontend.Models.Match
+@using TournamentManager.Frontend.Models.TournamentEntry
+@{
+    ViewData["Title"] = Model.Name;
+    Layout = "_Layout";
+    var teams = ViewBag.Teams as Dictionary<Guid, TeamResponse> ?? new();
+
+    string StatusBg(TournamentStatus s) => s switch {
+        TournamentStatus.Ongoing          => "background: rgba(30,120,30,0.2); color: #a0f0a0;",
+        TournamentStatus.RegistrationOpen => "background: rgba(201,168,76,0.2); color: var(--tm-gold);",
+        TournamentStatus.Upcoming         => "background: rgba(106,13,173,0.2); color: #c9a0f0;",
+        TournamentStatus.Completed        => "background: rgba(100,100,100,0.2); color: var(--tm-text-muted);",
+        _                                 => "background: rgba(180,30,30,0.2); color: #f5a0a0;"
+    };
+    string StatusLabel(TournamentStatus s) => s switch {
+        TournamentStatus.RegistrationOpen => "Registration Open",
+        _ => s.ToString()
+    };
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <a asp-controller="Tournament" asp-action="Index"
+           style="color: var(--tm-text-muted); font-size: 0.85rem; text-decoration: none;">
+            ← All Tournaments
+        </a>
+    </div>
+
+    <div class="tm-card p-4 p-md-5 mb-4">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+            <h1 class="fw-bold mb-0" style="color: var(--tm-text); font-size: clamp(1.5rem, 4vw, 2.2rem);">@Model.Name</h1>
+            <span class="px-3 py-1 rounded-pill fw-semibold" style="font-size: 0.8rem; @StatusBg(Model.Status)">
+                @StatusLabel(Model.Status)
+            </span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p style="color: var(--tm-text-muted); font-size: 0.95rem; max-width: 680px; margin-bottom: 1.5rem;">@Model.Description</p>
+        }
+
+        <div class="d-flex flex-wrap gap-4">
+            @if (!string.IsNullOrEmpty(Model.Location))
+            {
+                <div>
+                    <div style="color: var(--tm-text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;">Location</div>
+                    <div style="color: var(--tm-text); font-weight: 600;">📍 @Model.Location</div>
+                </div>
+            }
+            <div>
+                <div style="color: var(--tm-text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;">Start Date</div>
+                <div style="color: var(--tm-text); font-weight: 600;">@Model.StartDate.ToString("MMMM dd, yyyy")</div>
+            </div>
+            <div>
+                <div style="color: var(--tm-text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;">End Date</div>
+                <div style="color: var(--tm-text); font-weight: 600;">@Model.EndDate.ToString("MMMM dd, yyyy")</div>
+            </div>
+            <div>
+                <div style="color: var(--tm-text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem;">Teams</div>
+                <div style="color: var(--tm-text); font-weight: 600;">@Model.Entries.Count registered</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h2 class="fw-bold mb-3" style="color: var(--tm-text); font-size: 1.2rem;">
+            Registered Teams
+            <span style="color: var(--tm-text-muted); font-size: 0.85rem; font-weight: 400; margin-left: 0.5rem;">@Model.Entries.Count</span>
+        </h2>
+        <hr class="tm-divider" />
+
+        @if (Model.Entries.Count == 0)
+        {
+            <div class="text-center py-5">
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛡️</div>
+                <p style="color: var(--tm-text-muted);">No teams registered yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var entry in Model.Entries.OrderBy(e => e.Seed))
+                {
+                    var team = teams.GetValueOrDefault(entry.TeamId);
+                    <div class="col-sm-6 col-md-4 col-lg-3">
+                        <div class="tm-card p-3 d-flex align-items-center gap-3">
+                            @if (team is not null && !string.IsNullOrEmpty(team.Logo))
+                            {
+                                <img src="@team.Logo" alt="@team.Name"
+                                     style="width: 40px; height: 40px; object-fit: contain; flex-shrink: 0;"
+                                     onerror="this.style.display='none'" />
+                            }
+                            <div class="overflow-hidden">
+                                <div class="fw-semibold text-truncate" style="color: var(--tm-text); font-size: 0.9rem;">
+                                    @(team?.Name ?? "Unknown Team")
+                                </div>
+                                <div style="color: var(--tm-text-muted); font-size: 0.75rem;">
+                                    @@@(team?.Handle ?? "")
+                                    @if (entry.Seed.HasValue)
+                                    {
+                                        <span style="margin-left: 0.4rem; color: var(--tm-gold);">Seed @entry.Seed</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div>
+        <h2 class="fw-bold mb-3" style="color: var(--tm-text); font-size: 1.2rem;">
+            Matches
+            <span style="color: var(--tm-text-muted); font-size: 0.85rem; font-weight: 400; margin-left: 0.5rem;">@Model.Matches.Count</span>
+        </h2>
+        <hr class="tm-divider" />
+
+        @if (Model.Matches.Count == 0)
+        {
+            <div class="text-center py-5">
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">⚔️</div>
+                <p style="color: var(--tm-text-muted);">No matches scheduled yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="tm-card table-responsive">
+                <table class="table mb-0" style="color: var(--tm-text); --bs-table-bg: transparent; --bs-table-border-color: var(--tm-purple-dark);">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--tm-gold); font-size: 0.85rem; color: var(--tm-text-muted);">
+                            <th>Round</th>
+                            <th>Bracket</th>
+                            <th>Radiant</th>
+                            <th class="text-center">Score</th>
+                            <th>Dire</th>
+                            <th>Scheduled</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var match in Model.Matches.OrderBy(m => m.RoundNumber))
+                        {
+                            var radiant = match.TeamRadiantId.HasValue ? teams.GetValueOrDefault(match.TeamRadiantId.Value) : null;
+                            var dire    = match.TeamDireId.HasValue    ? teams.GetValueOrDefault(match.TeamDireId.Value)    : null;
+                            <tr style="border-color: var(--tm-purple-dark);">
+                                <td>R@(match.RoundNumber)</td>
+                                <td style="font-size: 0.8rem; color: var(--tm-text-muted);">
+                                    @(match.BracketType switch {
+                                        BracketType.Upper      => "Upper",
+                                        BracketType.Lower      => "Lower",
+                                        BracketType.GrandFinal => "Grand Final",
+                                        _ => match.BracketType.ToString()
+                                    })
+                                </td>
+                                <td class="fw-semibold">@(radiant?.Name ?? "TBD")</td>
+                                <td class="text-center fw-bold" style="color: var(--tm-gold);">
+                                    @match.TeamRadiantScore – @match.TeamDireScore
+                                </td>
+                                <td class="fw-semibold">@(dire?.Name ?? "TBD")</td>
+                                <td style="font-size: 0.8rem; color: var(--tm-text-muted);">@match.ScheduledAt.ToString("MMM dd, HH:mm")</td>
+                                <td>
+                                    <span class="px-2 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 700;
+                                        @(match.Status == MatchStatus.Completed ? "background: rgba(100,100,100,0.2); color: var(--tm-text-muted);" :
+                                          match.Status == MatchStatus.InProgress ? "background: rgba(30,180,30,0.3); color: #70f070;"              :
+                                          "background: rgba(106,13,173,0.2); color: #c9a0f0;")">
+                                        @match.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

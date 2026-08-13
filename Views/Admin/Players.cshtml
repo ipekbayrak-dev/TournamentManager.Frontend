@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Manage Players";
     Layout = "_Layout";
+    var teams = ViewBag.Teams as List<TeamResponse> ?? new List<TeamResponse>();
 }
 
 <div class="container py-5">
@@ -42,6 +43,7 @@
                             <td class="fw-semibold">@p.Handle</td>
                             <td>@p.FirstName @p.LastName</td>
                             <td>@p.CountryCode.ToUpperInvariant()</td>
+
                             <td>@(p.Position switch {
                                 DotaPosition.Carry => "Carry",
                                 DotaPosition.Midlaner => "Midlaner",

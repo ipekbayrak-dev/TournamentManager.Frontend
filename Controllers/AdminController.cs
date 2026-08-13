@@ -388,19 +388,22 @@ namespace TournamentManager.Frontend.Controllers
                 return check;
             }
 
-            var team = await response.Content.ReadFromJsonAsync<PlayerResponse>();
+            var player = await response.Content.ReadFromJsonAsync<PlayerResponse>();
+
+            var teamsResponse = await client.GetAsync("api/Team");
+            ViewBag.Teams = await teamsResponse.Content.ReadFromJsonAsync<List<TeamResponse>>() ?? new List<TeamResponse>();
 
             var model = new UpdatePlayerRequest
             {
                 Id = id,
-                TeamId = team!.TeamId,
-                CountryCode = team.CountryCode,
-                FirstName = team.FirstName,
-                Handle = team.Handle,
-                LastName = team.LastName,
-                Position = team.Position,
-                IsCaptain = team.IsCaptain,
-                SteamId = team.SteamId
+                TeamId = player!.TeamId,
+                CountryCode = player.CountryCode,
+                FirstName = player.FirstName,
+                Handle = player.Handle,
+                LastName = player.LastName,
+                Position = player.Position,
+                IsCaptain = player.IsCaptain,
+                SteamId = player.SteamId
             };
 
             return View(model);

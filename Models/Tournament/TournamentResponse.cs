@@ -1,4 +1,6 @@
 using TournamentManager.Frontend.Models.Enums;
+using TournamentManager.Frontend.Models.Match;
+using TournamentManager.Frontend.Models.TournamentEntry;
 
 namespace TournamentManager.Frontend.Models.Tournament
 {
@@ -11,5 +13,7 @@ namespace TournamentManager.Frontend.Models.Tournament
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public TournamentStatus Status { get; set; }
+        public List<TournamentEntryResponse> Entries { get; set; } = new();
+        public List<MatchResponse> Matches { get; set; } = new();
     }
 }
