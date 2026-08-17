@@ -10,6 +10,9 @@ namespace TournamentManager.Frontend.Models.Tournament
         [Required(ErrorMessage = "Tournament name is required.")]
         public string Name { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Slug is required.")]
+        public string Slug { get; set; } = string.Empty;
+
         public string? Description { get; set; }
 
         public string? Location { get; set; }

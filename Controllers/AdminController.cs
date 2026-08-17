@@ -94,6 +94,7 @@ namespace TournamentManager.Frontend.Controllers
             {
                 Id = tournament!.Id,
                 Name = tournament.Name,
+                Slug = tournament.Slug ?? string.Empty,
                 Description = tournament.Description,
                 Location = tournament.Location,
                 StartDate = tournament.StartDate,

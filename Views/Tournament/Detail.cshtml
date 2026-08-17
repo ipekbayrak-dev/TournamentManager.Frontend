@@ -2,10 +2,15 @@
 @using TournamentManager.Frontend.Models.Team
 @using TournamentManager.Frontend.Models.Match
 @using TournamentManager.Frontend.Models.TournamentEntry
+@using TournamentManager.Frontend.Models.Player
 @{
     ViewData["Title"] = Model.Name;
     Layout = "_Layout";
     var teams = ViewBag.Teams as Dictionary<Guid, TeamResponse> ?? new();
+    var playerProfile = ViewBag.PlayerProfile as PlayerResponse;
+    var alreadyRegistered = playerProfile != null
+        && playerProfile.TeamId != Guid.Empty
+        && Model.Entries.Any(e => e.TeamId == playerProfile.TeamId);
 
     string StatusBg(TournamentStatus s) => s switch {
         TournamentStatus.Ongoing          => "background: rgba(30,120,30,0.2); color: #a0f0a0;",
@@ -63,6 +68,61 @@
                 <div style="color: var(--tm-text); font-weight: 600;">@Model.Entries.Count registered</div>
             </div>
         </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="mt-3 p-3 rounded" style="background: rgba(220,50,50,0.15); color: #ff9090; font-size: 0.875rem;">
+                @TempData["Error"]
+            </div>
+        }
+
+        @if (Model.Status == TournamentStatus.RegistrationOpen)
+        {
+            <hr class="tm-divider mt-4" />
+            if (alreadyRegistered)
+            {
+                var entry = Model.Entries.First(e => e.TeamId == playerProfile!.TeamId);
+                <div class="d-flex align-items-center gap-3 mt-3">
+                    <p class="mb-0" style="color: var(--tm-gold); font-size: 0.9rem;">✓ Your team is registered for this tournament.</p>
+                    <form asp-controller="Tournament" asp-action="WithdrawTeam" method="post"
+                          onsubmit="return confirm('Withdraw your team from this tournament?');">
+                        <input type="hidden" name="entryId" value="@entry.Id" />
+                        <input type="hidden" name="slug" value="@Model.Slug" />
+                        <button type="submit" class="btn btn-sm"
+                                style="border: 1px solid rgba(220,50,50,0.5); color: #ff9090;">
+                            Withdraw
+                        </button>
+                    </form>
+                </div>
+            }
+            else if (playerProfile is null)
+            {
+                <p class="mb-0 mt-3" style="color: var(--tm-text-muted); font-size: 0.875rem;">Create a player profile to register your team for this tournament.</p>
+            }
+            else if (playerProfile.Status != PlayerStatus.Approved)
+            {
+                <p class="mb-0 mt-3" style="color: var(--tm-text-muted); font-size: 0.875rem;">Your player profile must be approved before you can register.</p>
+            }
+            else if (playerProfile.TeamId == Guid.Empty)
+            {
+                <p class="mb-0 mt-3" style="color: var(--tm-text-muted); font-size: 0.875rem;">You must be assigned to a team before you can register.</p>
+            }
+            else if (!playerProfile.IsCaptain)
+            {
+                <p class="mb-0 mt-3" style="color: var(--tm-text-muted); font-size: 0.875rem;">Only the team captain can register for tournaments.</p>
+            }
+            else
+            {
+                <form asp-controller="Tournament" asp-action="RegisterTeam" method="post" class="mt-3">
+                    <input type="hidden" name="tournamentId" value="@Model.Id" />
+                    <input type="hidden" name="teamId" value="@playerProfile.TeamId" />
+                    <input type="hidden" name="slug" value="@Model.Slug" />
+                    <button type="submit" class="btn btn-tm-primary px-4 py-2">
+                        Register My Team →
+                    </button>
+                </form>
+            }
+        }
     </div>
 
     <div class="mb-4">
