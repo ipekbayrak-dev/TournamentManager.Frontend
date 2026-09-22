@@ -1,0 +1,81 @@
+@{
+    ViewData["Title"] = "Compete";
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <p class="text-uppercase fw-semibold mb-2" style="color: var(--tm-gold); letter-spacing: 0.1em; font-size: 0.85rem;">
+                For Organizations
+            </p>
+            <h1 class="fw-bold mb-3" style="color: var(--tm-text); font-size: clamp(1.8rem, 4vw, 2.8rem);">
+                Bring Your Team<br />to the Bracket.
+            </h1>
+            <p style="color: var(--tm-text-muted); font-size: 1.05rem; line-height: 1.8; max-width: 600px; margin-bottom: 2.5rem;">
+                Tournament Manager works with established Dota 2 organizations. Teams are verified and onboarded
+                by our admin team before competing — no open signups, no unvetted rosters.
+                If your org is ready to compete at a serious level, reach out.
+            </p>
+
+            <hr class="tm-divider mb-5" />
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="tm-card p-4 h-100">
+                        <div style="font-size: 2rem; margin-bottom: 0.75rem;">🛡️</div>
+                        <h5 class="fw-bold mb-2" style="color: var(--tm-text);">Verified Orgs</h5>
+                        <p style="color: var(--tm-text-muted); font-size: 0.9rem; margin: 0;">
+                            Only organizations we've onboarded appear in the bracket. Every team is known and accountable.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="tm-card p-4 h-100">
+                        <div style="font-size: 2rem; margin-bottom: 0.75rem;">⚔️</div>
+                        <h5 class="fw-bold mb-2" style="color: var(--tm-text);">Double Elimination</h5>
+                        <p style="color: var(--tm-text-muted); font-size: 0.9rem; margin: 0;">
+                            One loss doesn't end you. Fight back through the lower bracket and reach the Grand Final.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="tm-card p-4 h-100">
+                        <div style="font-size: 2rem; margin-bottom: 0.75rem;">💰</div>
+                        <h5 class="fw-bold mb-2" style="color: var(--tm-text);">Prize Pool</h5>
+                        <p style="color: var(--tm-text-muted); font-size: 0.9rem; margin: 0;">
+                            Entry fees feed the prize pool. Top finishers take home real money.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tm-card p-5">
+                <h3 class="fw-bold mb-2" style="color: var(--tm-text);">Apply to Compete</h3>
+                <p style="color: var(--tm-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                    Send us your org name, roster, and which upcoming tournament you're targeting.
+                    We'll review and get your team set up in the system.
+                </p>
+                <a href="mailto:hello@ipekbayrak.dev?subject=Tournament%20Application"
+                   class="btn btn-tm-primary px-5 py-2">
+                    Contact Us →
+                </a>
+                @if (Context.Request.Cookies["AccessToken"] != null)
+                {
+                    <p style="color: var(--tm-text-muted); font-size: 0.8rem; margin-top: 1rem; margin-bottom: 0;">
+                        Already in the system? <a asp-controller="Tournament" asp-action="Index" style="color: var(--tm-gold); text-decoration: none;">View open tournaments →</a>
+                    </p>
+                }
+                else
+                {
+                    <p style="color: var(--tm-text-muted); font-size: 0.8rem; margin-top: 1rem; margin-bottom: 0;">
+                        Already registered? <a asp-controller="Auth" asp-action="Login" style="color: var(--tm-gold); text-decoration: none;">Sign in</a> and your captain can register for open tournaments directly.
+                    </p>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>

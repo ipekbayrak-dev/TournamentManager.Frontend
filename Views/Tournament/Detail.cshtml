@@ -85,7 +85,7 @@
                 <div class="d-flex align-items-center gap-3 mt-3">
                     <p class="mb-0" style="color: var(--tm-gold); font-size: 0.9rem;">✓ Your team is registered for this tournament.</p>
                     <form asp-controller="Tournament" asp-action="WithdrawTeam" method="post"
-                          onsubmit="return confirm('Withdraw your team from this tournament?');">
+                          onsubmit="showConfirm(event, 'Withdraw your team from this tournament? This cannot be undone.');">
                         <input type="hidden" name="entryId" value="@entry.Id" />
                         <input type="hidden" name="slug" value="@Model.Slug" />
                         <button type="submit" class="btn btn-sm"
@@ -117,6 +117,7 @@
                     <input type="hidden" name="tournamentId" value="@Model.Id" />
                     <input type="hidden" name="teamId" value="@playerProfile.TeamId" />
                     <input type="hidden" name="slug" value="@Model.Slug" />
+                    <input type="hidden" name="tournamentName" value="@Model.Name" />
                     <button type="submit" class="btn btn-tm-primary px-4 py-2">
                         Register My Team →
                     </button>
@@ -136,7 +137,7 @@
         {
             <div class="text-center py-5">
                 <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛡️</div>
-                <p style="color: var(--tm-text-muted);">No teams registered yet.</p>
+                <p style="color: var(--tm-text-muted);">No warriors have answered the call yet.</p>
             </div>
         }
         else
@@ -183,7 +184,7 @@
         {
             <div class="text-center py-5">
                 <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">⚔️</div>
-                <p style="color: var(--tm-text-muted);">No matches scheduled yet.</p>
+                <p style="color: var(--tm-text-muted);">The bracket awaits. Matches will appear once the tournament begins.</p>
             </div>
         }
         else

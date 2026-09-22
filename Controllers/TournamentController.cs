@@ -94,23 +94,15 @@ namespace TournamentManager.Frontend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RegisterTeam([FromForm] Guid tournamentId, [FromForm] Guid teamId, [FromForm] string slug)
+        public async Task<IActionResult> RegisterTeam([FromForm] Guid tournamentId, [FromForm] Guid teamId, [FromForm] string slug, [FromForm] string tournamentName)
         {
             var client = CreateAuthorizedClient(out var redirect);
-
-            if (client is null)
-            {
-                return redirect!;
-            }
+            if (client is null) return redirect!;
 
             var response = await client.PostAsJsonAsync("api/TournamentEntry", new CreateTournamentEntryRequest { TournamentId = tournamentId, TeamId = teamId });
 
             var check = CheckUnauthorized(response);
-
-            if (check is not null)
-            {
-                return check;
-            }
+            if (check is not null) return check;
 
             if (!response.IsSuccessStatusCode)
             {
@@ -118,7 +110,13 @@ namespace TournamentManager.Frontend.Controllers
                 return RedirectToAction("Detail", new { id = slug });
             }
 
-            return RedirectToAction("Detail", new { id = slug });
+            var entry = await response.Content.ReadFromJsonAsync<TournamentEntryResponse>();
+            return RedirectToAction("Checkout", "Payment", new
+            {
+                entryId = entry!.Id,
+                slug = slug,
+                tournamentName = tournamentName
+            });
         }
     }
 }

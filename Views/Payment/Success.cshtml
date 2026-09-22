@@ -1,0 +1,41 @@
+@{
+    ViewData["Title"] = "Payment Confirmed";
+    Layout = "_Layout";
+    var slug = ViewBag.Slug as string;
+}
+
+<div class="container py-5">
+    <div class="d-flex align-items-center justify-content-center" style="min-height: 60vh;">
+        <div class="tm-card p-5 text-center" style="max-width: 520px; width: 100%;">
+
+            <div style="font-size: 3.5rem; margin-bottom: 1.25rem; color: #70f070;">✓</div>
+
+            <h1 class="fw-bold mb-3" style="color: var(--tm-text); font-size: 1.75rem;">
+                Payment Confirmed
+            </h1>
+
+            <p style="color: var(--tm-text-muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 2rem;">
+                Your team has been registered and your entry fee has been received.
+                You're all set for the tournament — may the best team win.
+            </p>
+
+            <hr class="tm-divider mb-4" />
+
+            @if (!string.IsNullOrEmpty(slug))
+            {
+                <a asp-controller="Tournament" asp-action="Detail" asp-route-id="@slug"
+                   class="btn btn-tm-primary px-5 py-2">
+                    Back to Tournament →
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Tournament" asp-action="Index"
+                   class="btn btn-tm-primary px-5 py-2">
+                    View All Tournaments →
+                </a>
+            }
+
+        </div>
+    </div>
+</div>

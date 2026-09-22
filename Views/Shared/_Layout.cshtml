@@ -23,6 +23,9 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Compete">Compete</a>
+                        </li>
                         @if (Context.Request.Cookies["AccessToken"] != null)
                         {
                             <li class="nav-item">
@@ -75,5 +78,47 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Confirm modal -->
+    <div class="modal fade" id="tmConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+            <div class="modal-content" style="background: var(--tm-surface); border: 1px solid var(--tm-purple-dark); border-radius: 0.75rem;">
+                <div class="modal-body p-5 text-center">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; color: #ff9090;">⚠</div>
+                    <p id="tmConfirmMessage" class="fw-semibold mb-4" style="color: var(--tm-text); font-size: 1rem;"></p>
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="button" data-bs-dismiss="modal"
+                                style="background: transparent; border: 1px solid var(--tm-purple-dark); color: var(--tm-text-muted);
+                                       border-radius: 0.4rem; padding: 0.5rem 1.5rem; cursor: pointer; font-size: 0.9rem;">
+                            Cancel
+                        </button>
+                        <button type="button" id="tmConfirmBtn"
+                                style="background: rgba(220,50,50,0.15); border: 1px solid rgba(220,50,50,0.5); color: #ff9090;
+                                       border-radius: 0.4rem; padding: 0.5rem 1.5rem; cursor: pointer; font-size: 0.9rem; font-weight: 600;">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let _tmPendingForm = null;
+        let _tmModal = null;
+
+        function showConfirm(event, message) {
+            event.preventDefault();
+            _tmPendingForm = event.currentTarget;
+            if (!_tmModal) _tmModal = new bootstrap.Modal(document.getElementById('tmConfirmModal'));
+            document.getElementById('tmConfirmMessage').textContent = message;
+            _tmModal.show();
+        }
+
+        document.getElementById('tmConfirmBtn').addEventListener('click', function () {
+            _tmModal.hide();
+            if (_tmPendingForm) _tmPendingForm.submit();
+        });
+    </script>
 </body>
 </html>

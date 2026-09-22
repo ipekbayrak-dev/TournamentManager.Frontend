@@ -21,8 +21,8 @@
     {
         <div class="text-center py-5">
             <div style="font-size: 3rem; margin-bottom: 1rem;">🛡</div>
-            <p style="color: var(--tm-text-muted);">No teams yet.</p>
-            <a asp-controller="Admin" asp-action="CreateTeam" class="btn btn-tm-primary px-4 py-2">Create the first one</a>
+            <p style="color: var(--tm-text-muted);">No organizations in the system yet.</p>
+            <a asp-controller="Admin" asp-action="CreateTeam" class="btn btn-tm-primary px-4 py-2">Add First Team</a>
         </div>
     }
     else
@@ -64,7 +64,7 @@
                                    class="btn btn-sm btn-tm-outline me-1">Edit</a>
                                 <form asp-controller="Admin" asp-action="DeleteTeam" method="post"
                                       style="display:inline;"
-                                      onsubmit="return confirm('Delete @t.Name? This cannot be undone.');">
+                                      onsubmit="showConfirm(event, 'Delete @t.Name? This cannot be undone.');">
                                     <input type="hidden" name="id" value="@t.Id" />
                                     <button type="submit" class="btn btn-sm"
                                             style="border: 1px solid rgba(220,50,50,0.5); color: #ff9090;">
