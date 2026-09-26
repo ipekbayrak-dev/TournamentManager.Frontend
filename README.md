@@ -1,12 +1,12 @@
 # TournamentManager — Frontend
 
-The client for [TournamentManager.Backend](https://github.com/ipekbayrak-dev/TournamentManager.Backend) — a double-elimination tournament management system modeled after the Dota 2 professional tournament format. This project is the ASP.NET Core MVC frontend: it talks to the backend Web API over HTTP/JSON with JWT auth and doesn't own any data itself.
+The client for [TournamentManager.Backend](https://github.com/ipekbayrak-dev/TournamentManager.Backend) — a double-elimination tournament management system modeled after the Dota 2 professional tournament format. This project is the ASP.NET Core MVC frontend: it talks to the backend Web API over HTTP/JSON and doesn't own any data itself.
 
 ## Role in the Architecture
 
-- **Player portal** — browse tournaments, register a team, view the live bracket
-- **Admin panel** — manage tournaments, report match results (Admin role only)
-- **Payment UI** — entry fee checkout via Stripe Elements *(planned — backend Stripe integration is wired and ready)*
+- **Player portal** — browse tournaments, register a team, view the live bracket, pay entry fees
+- **Admin panel** — manage tournaments, teams, players, and match results (Admin role only)
+- **Payment UI** — entry fee checkout via Stripe hosted Checkout sessions
 
 ## Tech Stack
 
@@ -14,26 +14,33 @@ The client for [TournamentManager.Backend](https://github.com/ipekbayrak-dev/Tou
 |---|---|
 | Framework | ASP.NET Core MVC (.NET 10) |
 | Styling | Bootstrap 5 + custom CSS |
-| Interactivity | Vanilla JS + jQuery |
-| Auth | JWT (forwarded to API via HttpClient) |
-| HTTP Client | Typed `HttpClient` services |
-| Payment UI | Stripe Elements *(planned)* |
+| Interactivity | Vanilla JS |
+| Auth | JWT stored in HttpOnly cookies (AccessToken + RefreshToken) |
+| HTTP Client | `IHttpClientFactory` with named client |
+| Payments | Stripe hosted Checkout |
 
 ## Project Structure
 
 ```
 TournamentManager.Frontend/
 ├── Controllers/           # MVC controllers — one per feature area
+│   ├── AuthController     # Login, Register, Logout
+│   ├── TournamentController
+│   ├── TeamController
+│   ├── MatchController
+│   ├── PlayerController
+│   ├── AdminController
+│   └── PaymentController  # Stripe checkout redirect + success page
 ├── Models/                # View models and API response shapes
 ├── Views/
-│   ├── Home/              # Landing page
+│   ├── Home/              # Landing page, Compete page
 │   ├── Auth/              # Login, Register
-│   ├── Tournament/        # List, Detail, Bracket viewer
+│   ├── Tournament/        # List (with search/filter), Detail, Bracket viewer
 │   ├── Team/              # Roster, Detail
 │   ├── Match/             # Match detail, score display
-│   ├── Admin/             # Admin dashboard
-│   └── Shared/            # Layout, partials
-├── Services/              # Typed HttpClient wrappers per API resource
+│   ├── Admin/             # Tournaments, Teams, Players, Pending Players
+│   ├── Payment/           # Success page
+│   └── Shared/            # Layout (with custom delete modal), Error page
 ├── wwwroot/
 │   ├── css/               # Global styles
 │   ├── js/                # Page scripts
@@ -41,45 +48,47 @@ TournamentManager.Frontend/
 └── Program.cs
 ```
 
-## Planned Pages & Routes
+## Pages & Routes
 
 | Page | Route | Access |
 |---|---|---|
 | Home / Landing | / | Public |
+| Compete | /Home/Compete | Public |
 | Login | /Auth/Login | Public |
 | Register | /Auth/Register | Public |
 | Tournament List | /Tournament | Public |
-| Tournament Detail | /Tournament/{id} | Public |
-| Bracket View | /Tournament/{id}/Bracket | Public |
+| Tournament Detail | /Tournament/{slug} | Public |
+| Bracket View | /Tournament/{slug}/Bracket | Public |
 | Team Detail | /Team/{id} | Public |
-| Register for Tournament | /Tournament/{id}/Register | Player |
+| Register for Tournament | POST /Tournament/RegisterTeam | Captain |
+| Payment Checkout | /Payment/Checkout | Authenticated |
+| Payment Success | /Payment/Success | Authenticated |
 | Admin Dashboard | /Admin | Admin |
-| Manage Tournaments | /Admin/Tournament | Admin |
-| Manage Teams | /Admin/Team | Admin |
-| Manage Matches & Results | /Admin/Match | Admin |
+| Manage Tournaments | /Admin/Tournaments | Admin |
+| Manage Teams | /Admin/Teams | Admin |
+| Manage Players | /Admin/Players | Admin |
+| Pending Players | /Admin/PendingPlayers | Admin |
 
 ## Authentication Flow
 
 1. User logs in via `/Auth/Login` → Frontend POSTs to `POST /api/Auth/login`
-2. JWT access token and refresh token stored in session
-3. All subsequent API calls include `Authorization: Bearer {token}`
-4. Token expiry handled automatically via refresh endpoint
-5. Roles decoded from JWT claims — Admin/Captain/Player get different UI
+2. JWT access token and refresh token stored in **HttpOnly cookies**
+3. All subsequent API calls read the token from the cookie and forward it as `Authorization: Bearer {token}`
+4. Token expiry handled automatically via the refresh endpoint
+5. Roles decoded from JWT claims — Admin gets additional UI controls
 
 ## Prerequisites
 
 - .NET 10 SDK
-- [TournamentManager.Backend](https://github.com/ipekbayrak-dev/TournamentManager.Backend) running locally (`https://localhost:7008` / `http://localhost:5147`)
+- [TournamentManager.Backend](https://github.com/ipekbayrak-dev/TournamentManager.Backend) running locally
 
 ## Getting Started
 
 **1. Start the backend first** (see backend README)
 
-**2. Configure the API base URL** in `appsettings.json`:
-```json
-"ApiSettings": {
-  "BaseUrl": "http://localhost:5147"
-}
+**2. Start Stripe webhook forwarding** (in a separate terminal):
+```
+stripe listen --forward-to https://localhost:7008/api/Payment/webhook
 ```
 
 **3. Run the frontend:**
@@ -87,18 +96,7 @@ TournamentManager.Frontend/
 dotnet run
 ```
 
-## Status
-
-Active development. Auth flow, typed API clients, and feature pages are being built incrementally. Backend is complete and fully tested — frontend is next.
-
-- [x] Project scaffold
-- [ ] Auth flow (login, register, token refresh)
-- [ ] Typed HttpClient services for all API resources
-- [ ] Tournament pages
-- [ ] Bracket viewer
-- [ ] Team & player pages
-- [ ] Admin panel
-- [ ] Stripe payment UI
+The frontend runs at `https://localhost:7049` by default.
 
 ## Related
 
