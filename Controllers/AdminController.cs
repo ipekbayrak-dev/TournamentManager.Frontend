@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using TournamentManager.Frontend.Models.Match;
 using TournamentManager.Frontend.Models.Player;
 using TournamentManager.Frontend.Models.Team;
 using TournamentManager.Frontend.Models.Tournament;
@@ -368,6 +369,9 @@ namespace TournamentManager.Frontend.Controllers
 
             var players = await response.Content.ReadFromJsonAsync<List<PlayerResponse>>();
 
+            var teamsResponse = await client.GetAsync("api/Team");
+            ViewBag.Teams = await teamsResponse.Content.ReadFromJsonAsync<List<TeamResponse>>() ?? new List<TeamResponse>();
+
             return View(players);
         }
         [HttpGet]
@@ -457,6 +461,25 @@ namespace TournamentManager.Frontend.Controllers
             }
 
             return RedirectToAction("Players");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReportMatch([FromForm] UpdateMatchRequest request, [FromForm] string slug, [FromForm] string? returnTo)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null) return redirect!;
+
+            var response = await client.PutAsJsonAsync($"api/Match/{request.Id}", request);
+
+            var check = CheckUnauthorized(response);
+            if (check is not null) return check;
+
+            if (!response.IsSuccessStatusCode)
+                TempData["Error"] = await response.Content.ReadAsStringAsync();
+
+            return returnTo == "bracket"
+                ? RedirectToAction("Bracket", "Tournament", new { id = slug })
+                : RedirectToAction("Detail",  "Tournament", new { id = slug });
         }
     }
 }

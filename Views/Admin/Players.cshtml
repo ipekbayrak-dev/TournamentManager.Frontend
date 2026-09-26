@@ -32,13 +32,15 @@
                         <th>Name</th>
                         <th>Country</th>
                         <th>Position</th>
+                        <th>Team</th>
                         <th>Status</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var p in Model)
+                    @foreach (var p in Model.OrderBy(p => teams.FirstOrDefault(t => t.Id == p.TeamId)?.Name ?? "").ThenBy(p => p.Handle))
                     {
+                        var team = teams.FirstOrDefault(t => t.Id == p.TeamId);
                         <tr style="border-color: var(--tm-purple-dark);">
                             <td class="fw-semibold">@p.Handle</td>
                             <td>@p.FirstName @p.LastName</td>
@@ -53,6 +55,17 @@
                                 DotaPosition.Coach => "Coach",
                                 _ => p.Position.ToString()
                             })</td>
+                            <td>
+                                @if (team is not null)
+                                {
+                                    <a asp-controller="Team" asp-action="Detail" asp-route-id="@team.Id"
+                                       style="color: var(--tm-gold); text-decoration: none;">@team.Name</a>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--tm-text-muted);">—</span>
+                                }
+                            </td>
                             <td>
                                 <span class="px-2 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 700;
                                     @(p.Status == PlayerStatus.Approved ? "background: rgba(30,180,30,0.3); color: #70f070;" :

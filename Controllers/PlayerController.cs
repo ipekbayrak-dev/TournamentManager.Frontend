@@ -28,6 +28,8 @@ namespace TournamentManager.Frontend.Controllers
             if (profileResponse.IsSuccessStatusCode)
             {
                 var player = await profileResponse.Content.ReadFromJsonAsync<PlayerResponse>();
+                var profileTeamsResponse = await client.GetAsync("api/Team");
+                ViewBag.Teams = await profileTeamsResponse.Content.ReadFromJsonAsync<List<TeamResponse>>() ?? new List<TeamResponse>();
                 return View("Profile", player);
             }
 

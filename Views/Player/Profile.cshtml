@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "My Profile";
     Layout = "_Layout";
+    var teams = ViewBag.Teams as List<TeamResponse> ?? new List<TeamResponse>();
+    var playerTeam = teams.FirstOrDefault(t => t.Id == Model.TeamId);
     var positionLabel = Model.Position switch
     {
         DotaPosition.Carry => "Carry",
@@ -67,6 +69,16 @@
                         <p class="form-label mb-1">Country</p>
                         <p style="color: var(--tm-text); font-weight: 600; margin: 0;">@Model.CountryCode.ToUpperInvariant()</p>
                     </div>
+                    @if (playerTeam is not null)
+                    {
+                        <div class="col-12">
+                            <p class="form-label mb-1">Team</p>
+                            <a asp-controller="Team" asp-action="Detail" asp-route-id="@playerTeam.Id"
+                               style="color: var(--tm-gold); font-weight: 600; text-decoration: none;">
+                                @playerTeam.Name →
+                            </a>
+                        </div>
+                    }
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.SteamId))

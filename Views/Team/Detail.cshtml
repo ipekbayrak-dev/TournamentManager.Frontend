@@ -1,0 +1,117 @@
+@model TeamResponse
+@using TournamentManager.Frontend.Models.Player
+@{
+    ViewData["Title"] = Model.Name;
+    Layout = "_Layout";
+    var players = ViewBag.Players as List<PlayerResponse> ?? new List<PlayerResponse>();
+    var captain = players.FirstOrDefault(p => p.IsCaptain);
+
+    string RegionLabel(DotaRegion r) => r switch {
+        DotaRegion.WEU => "Western Europe",
+        DotaRegion.EEU => "Eastern Europe",
+        DotaRegion.CN  => "China",
+        DotaRegion.SEA => "Southeast Asia",
+        DotaRegion.NA  => "North America",
+        DotaRegion.SA  => "South America",
+        _ => r.ToString()
+    };
+
+    string PositionLabel(DotaPosition p) => p switch {
+        DotaPosition.Carry       => "Carry",
+        DotaPosition.Midlaner    => "Midlaner",
+        DotaPosition.Offlaner    => "Offlaner",
+        DotaPosition.SoftSupport => "Soft Support",
+        DotaPosition.HardSupport => "Hard Support",
+        DotaPosition.Coach       => "Coach",
+        _ => p.ToString()
+    };
+}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <a asp-controller="Tournament" asp-action="Index"
+           style="color: var(--tm-text-muted); font-size: 0.85rem; text-decoration: none;">
+            ← All Tournaments
+        </a>
+    </div>
+
+    <div class="tm-card p-4 p-md-5 mb-4">
+        <div class="d-flex flex-wrap align-items-center gap-4">
+            @if (!string.IsNullOrEmpty(Model.Logo))
+            {
+                <img src="@Model.Logo" alt="@Model.Name"
+                     style="width: 80px; height: 80px; object-fit: contain; flex-shrink: 0;"
+                     onerror="this.style.display='none'" />
+            }
+            <div>
+                <h1 class="fw-bold mb-1" style="color: var(--tm-text); font-size: clamp(1.4rem, 4vw, 2rem);">@Model.Name</h1>
+                <div class="d-flex flex-wrap gap-3 mt-2">
+                    <span style="color: var(--tm-text-muted); font-size: 0.85rem;">@@@Model.Handle</span>
+                    <span style="color: var(--tm-gold); font-size: 0.85rem; font-weight: 600;">@RegionLabel(Model.Region)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h2 class="fw-bold mb-3" style="color: var(--tm-text); font-size: 1.2rem;">
+            Roster
+            <span style="color: var(--tm-text-muted); font-size: 0.85rem; font-weight: 400; margin-left: 0.5rem;">@players.Count</span>
+        </h2>
+        <hr class="tm-divider" />
+
+        @if (players.Count == 0)
+        {
+            <div class="text-center py-5">
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🎮</div>
+                <p style="color: var(--tm-text-muted);">No players on this roster yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="tm-card table-responsive">
+                <table class="table mb-0" style="color: var(--tm-text); --bs-table-bg: transparent; --bs-table-color: var(--tm-text); --bs-table-border-color: var(--tm-purple-dark);">
+                    <thead>
+                        <tr style="border-color: var(--tm-purple-dark); font-size: 0.85rem; border-bottom: 1px solid var(--tm-gold);">
+                            <th>Handle</th>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Country</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in players.OrderBy(p => p.Position))
+                        {
+                            <tr style="border-color: var(--tm-purple-dark);">
+                                <td class="fw-semibold">
+                                    @p.Handle
+                                    @if (p.IsCaptain)
+                                    {
+                                        <span class="ms-2 px-2 py-1 rounded-pill"
+                                              style="font-size: 0.65rem; font-weight: 600; background: rgba(201,168,76,0.2); color: var(--tm-gold);">
+                                            ⭐ Captain
+                                        </span>
+                                    }
+                                </td>
+                                <td>@p.FirstName @p.LastName</td>
+                                <td style="color: var(--tm-text-muted); font-size: 0.9rem;">@PositionLabel(p.Position)</td>
+                                <td>@p.CountryCode.ToUpperInvariant()</td>
+                                <td>
+                                    <span class="px-2 py-1 rounded-pill" style="font-size: 0.7rem; font-weight: 700;
+                                        @(p.Status == PlayerStatus.Approved ? "background: rgba(30,180,30,0.3); color: #70f070;" :
+                                          p.Status == PlayerStatus.Pending   ? "background: rgba(140,60,220,0.3); color: #d0a0ff;" :
+                                          "background: rgba(220,50,50,0.3); color: #ff9090;")">
+                                        @p.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

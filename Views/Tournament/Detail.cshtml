@@ -147,26 +147,31 @@
                 {
                     var team = teams.GetValueOrDefault(entry.TeamId);
                     <div class="col-sm-6 col-md-4 col-lg-3">
-                        <div class="tm-card p-3 d-flex align-items-center gap-3">
-                            @if (team is not null && !string.IsNullOrEmpty(team.Logo))
-                            {
-                                <img src="@team.Logo" alt="@team.Name"
-                                     style="width: 40px; height: 40px; object-fit: contain; flex-shrink: 0;"
-                                     onerror="this.style.display='none'" />
-                            }
-                            <div class="overflow-hidden">
-                                <div class="fw-semibold text-truncate" style="color: var(--tm-text); font-size: 0.9rem;">
-                                    @(team?.Name ?? "Unknown Team")
-                                </div>
-                                <div style="color: var(--tm-text-muted); font-size: 0.75rem;">
-                                    @@@(team?.Handle ?? "")
-                                    @if (entry.Seed.HasValue)
-                                    {
-                                        <span style="margin-left: 0.4rem; color: var(--tm-gold);">Seed @entry.Seed</span>
-                                    }
+                        <a asp-controller="Team" asp-action="Detail" asp-route-id="@entry.TeamId"
+                           style="text-decoration: none;"
+                           onmouseover="this.querySelector('.tm-card').style.borderColor='var(--tm-gold)'"
+                           onmouseout="this.querySelector('.tm-card').style.borderColor=''">
+                            <div class="tm-card p-3 d-flex align-items-center gap-3" style="transition: border-color 0.15s; cursor: pointer;">
+                                @if (team is not null && !string.IsNullOrEmpty(team.Logo))
+                                {
+                                    <img src="@team.Logo" alt="@team.Name"
+                                         style="width: 40px; height: 40px; object-fit: contain; flex-shrink: 0;"
+                                         onerror="this.style.display='none'" />
+                                }
+                                <div class="overflow-hidden">
+                                    <div class="fw-semibold text-truncate" style="color: var(--tm-text); font-size: 0.9rem;">
+                                        @(team?.Name ?? "Unknown Team")
+                                    </div>
+                                    <div style="color: var(--tm-text-muted); font-size: 0.75rem;">
+                                        @@@(team?.Handle ?? "")
+                                        @if (entry.Seed.HasValue)
+                                        {
+                                            <span style="margin-left: 0.4rem; color: var(--tm-gold);">Seed @entry.Seed</span>
+                                        }
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 }
             </div>
@@ -174,10 +179,19 @@
     </div>
 
     <div>
-        <h2 class="fw-bold mb-3" style="color: var(--tm-text); font-size: 1.2rem;">
-            Matches
-            <span style="color: var(--tm-text-muted); font-size: 0.85rem; font-weight: 400; margin-left: 0.5rem;">@Model.Matches.Count</span>
-        </h2>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h2 class="fw-bold mb-0" style="color: var(--tm-text); font-size: 1.2rem;">
+                Matches
+                <span style="color: var(--tm-text-muted); font-size: 0.85rem; font-weight: 400; margin-left: 0.5rem;">@Model.Matches.Count</span>
+            </h2>
+            @if (Model.Matches.Count > 0)
+            {
+                <a asp-controller="Tournament" asp-action="Bracket" asp-route-id="@Model.Slug"
+                   style="color: var(--tm-gold); font-size: 0.85rem; text-decoration: none; font-weight: 600;">
+                    View Bracket →
+                </a>
+            }
+        </div>
         <hr class="tm-divider" />
 
         @if (Model.Matches.Count == 0)
@@ -190,7 +204,7 @@
         else
         {
             <div class="tm-card table-responsive">
-                <table class="table mb-0" style="color: var(--tm-text); --bs-table-bg: transparent; --bs-table-border-color: var(--tm-purple-dark);">
+                <table class="table mb-0" style="color: var(--tm-text); --bs-table-color: var(--tm-text); --bs-table-bg: transparent; --bs-table-border-color: var(--tm-purple-dark); --bs-table-striped-color: var(--tm-text); --bs-table-hover-color: var(--tm-text);">
                     <thead>
                         <tr style="border-bottom: 1px solid var(--tm-gold); font-size: 0.85rem; color: var(--tm-text-muted);">
                             <th>Round</th>
@@ -200,10 +214,11 @@
                             <th>Dire</th>
                             <th>Scheduled</th>
                             <th>Status</th>
+                            @if (Context.Request.Cookies["IsAdmin"] == "true") { <th></th> }
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var match in Model.Matches.OrderBy(m => m.RoundNumber))
+                        @foreach (var match in Model.Matches.OrderBy(m => m.ScheduledAt).ThenBy(m => m.BracketType == BracketType.GrandFinal ? 99 : (int)m.BracketType))
                         {
                             var radiant = match.TeamRadiantId.HasValue ? teams.GetValueOrDefault(match.TeamRadiantId.Value) : null;
                             var dire    = match.TeamDireId.HasValue    ? teams.GetValueOrDefault(match.TeamDireId.Value)    : null;
@@ -219,7 +234,7 @@
                                 </td>
                                 <td class="fw-semibold">@(radiant?.Name ?? "TBD")</td>
                                 <td class="text-center fw-bold" style="color: var(--tm-gold);">
-                                    @match.TeamRadiantScore – @match.TeamDireScore
+                                    @(match.Status == MatchStatus.Scheduled ? "vs" : $"{match.TeamRadiantScore} – {match.TeamDireScore}")
                                 </td>
                                 <td class="fw-semibold">@(dire?.Name ?? "TBD")</td>
                                 <td style="font-size: 0.8rem; color: var(--tm-text-muted);">@match.ScheduledAt.ToString("MMM dd, HH:mm")</td>
@@ -231,6 +246,19 @@
                                         @match.Status
                                     </span>
                                 </td>
+                                @if (Context.Request.Cookies["IsAdmin"] == "true")
+                                {
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-tm-outline"
+                                                onclick="showReportMatch('@match.Id', '@Model.Slug',
+                                                    '@(match.TeamRadiantId?.ToString() ?? "")', '@(radiant?.Name ?? "TBD")',
+                                                    '@(match.TeamDireId?.ToString() ?? "")', '@(dire?.Name ?? "TBD")',
+                                                    @match.TeamRadiantScore, @match.TeamDireScore, '@match.Status',
+                                                    '@(match.WinnerTeamId?.ToString() ?? "")')">
+                                            Report
+                                        </button>
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>
@@ -240,3 +268,93 @@
     </div>
 
 </div>
+
+@if (Context.Request.Cookies["IsAdmin"] == "true")
+{
+    <div class="modal fade" id="reportMatchModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+            <div class="modal-content" style="background: var(--tm-surface); border: 1px solid var(--tm-purple-dark); border-radius: 0.75rem;">
+                <div class="modal-body p-4">
+                    <h5 class="fw-bold mb-4" style="color: var(--tm-text);">Report Match Result</h5>
+                    <form method="post" asp-controller="Admin" asp-action="ReportMatch">
+                        <input type="hidden" name="returnTo" value="detail" />
+                        <input type="hidden" id="rm-id" name="Id" />
+                        <input type="hidden" id="rm-slug" name="slug" />
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-5">
+                                <label class="form-label" id="rm-radiant-label">Radiant</label>
+                                <input type="number" class="form-control tm-input" id="rm-radiant-score" name="TeamRadiantScore" min="0" value="0" />
+                            </div>
+                            <div class="col-2 d-flex align-items-end justify-content-center pb-2" style="color: var(--tm-text-muted); font-weight: 700;">–</div>
+                            <div class="col-5">
+                                <label class="form-label" id="rm-dire-label">Dire</label>
+                                <input type="number" class="form-control tm-input" id="rm-dire-score" name="TeamDireScore" min="0" value="0" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Winner</label>
+                            <select class="form-select tm-input" id="rm-winner" name="WinnerTeamId">
+                                <option value="">— TBD —</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select tm-input" id="rm-status" name="Status">
+                                <option value="1">Scheduled</option>
+                                <option value="2">In Progress</option>
+                                <option value="3">Completed</option>
+                                <option value="4">Cancelled</option>
+                                <option value="5">Forfeited</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Completed At</label>
+                            <input type="datetime-local" class="form-control tm-input" id="rm-completed-at" name="CompletedAt" />
+                        </div>
+
+                        <div class="d-flex gap-3 justify-content-end">
+                            <button type="button" data-bs-dismiss="modal"
+                                    style="background: transparent; border: 1px solid var(--tm-purple-dark); color: var(--tm-text-muted);
+                                           border-radius: 0.4rem; padding: 0.5rem 1.5rem; cursor: pointer; font-size: 0.9rem;">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-tm-primary px-4">Save Result</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let _rmModal = null;
+        function showReportMatch(matchId, slug, radiantId, radiantName, direId, direName, radiantScore, direScore, status, winnerId) {
+            document.getElementById('rm-id').value = matchId;
+            document.getElementById('rm-slug').value = slug;
+            document.getElementById('rm-radiant-label').textContent = radiantName;
+            document.getElementById('rm-dire-label').textContent = direName;
+            document.getElementById('rm-radiant-score').value = radiantScore;
+            document.getElementById('rm-dire-score').value = direScore;
+
+            const statusMap = { 'Scheduled': '1', 'InProgress': '2', 'Completed': '3', 'Cancelled': '4', 'Forfeited': '5' };
+            document.getElementById('rm-status').value = statusMap[status] || '1';
+
+            const winner = document.getElementById('rm-winner');
+            winner.innerHTML = '<option value="">— TBD —</option>';
+            if (radiantId) winner.innerHTML += `<option value="${radiantId}">${radiantName}</option>`;
+            if (direId)    winner.innerHTML += `<option value="${direId}">${direName}</option>`;
+            winner.value = winnerId || '';
+
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('rm-completed-at').value = now.toISOString().slice(0, 16);
+
+            if (!_rmModal) _rmModal = new bootstrap.Modal(document.getElementById('reportMatchModal'));
+            _rmModal.show();
+        }
+    </script>
+}

@@ -76,6 +76,31 @@ namespace TournamentManager.Frontend.Controllers
 
             return View(tournament);
         }
+        [HttpGet]
+        public async Task<IActionResult> Bracket(string id)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null) return redirect!;
+
+            var tournamentTask = client.GetAsync($"api/Tournament/slug/{id}");
+            var teamsTask = client.GetAsync("api/Team");
+            await Task.WhenAll(tournamentTask, teamsTask);
+
+            var check = CheckUnauthorized(tournamentTask.Result);
+            if (check is not null) return check;
+
+            if (tournamentTask.Result.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return NotFound();
+
+            var tournament = await tournamentTask.Result.Content.ReadFromJsonAsync<TournamentResponse>();
+            if (tournament is null) return NotFound();
+
+            var teams = await teamsTask.Result.Content.ReadFromJsonAsync<List<TeamResponse>>() ?? new();
+            ViewBag.Teams = teams.ToDictionary(t => t.Id);
+
+            return View(tournament);
+        }
+
         [HttpPost]
         public async Task<IActionResult> WithdrawTeam([FromForm] Guid entryId, [FromForm] string slug)
         {
