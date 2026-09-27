@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using TournamentManager.Frontend.Models.Enums;
 using TournamentManager.Frontend.Models.Match;
 using TournamentManager.Frontend.Models.Player;
 using TournamentManager.Frontend.Models.Team;
 using TournamentManager.Frontend.Models.Tournament;
+using TournamentManager.Frontend.Models.TournamentEntry;
 
 namespace TournamentManager.Frontend.Controllers
 {
@@ -461,6 +463,84 @@ namespace TournamentManager.Frontend.Controllers
             }
 
             return RedirectToAction("Players");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerateBracket(Guid id)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null) return redirect!;
+
+            var response = await client.PostAsync($"api/Tournament/{id}/generate-bracket", null);
+
+            var check = CheckUnauthorized(response);
+            if (check is not null) return check;
+
+            if (!response.IsSuccessStatusCode)
+                TempData["Error"] = await response.Content.ReadAsStringAsync();
+
+            return RedirectToAction("Tournaments");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PendingEntries()
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null) return redirect!;
+
+            var tournamentsResponse = await client.GetAsync("api/Tournament");
+            var check = CheckUnauthorized(tournamentsResponse);
+            if (check is not null) return check;
+
+            var teamsResponse = await client.GetAsync("api/Team");
+
+            var tournaments = await tournamentsResponse.Content.ReadFromJsonAsync<List<TournamentResponse>>() ?? new();
+            var teams = await teamsResponse.Content.ReadFromJsonAsync<List<TeamResponse>>() ?? new();
+
+            var teamNames = teams.ToDictionary(t => t.Id, t => t.Name);
+
+            var pendingEntries = tournaments
+                .SelectMany(t => t.Entries
+                    .Where(e => e.Status == EntryStatus.Pending)
+                    .Select(e => new PendingEntryViewModel
+                    {
+                        Id = e.Id,
+                        TeamName = teamNames.TryGetValue(e.TeamId, out var name) ? name : "Unknown",
+                        TournamentName = t.Name,
+                        Seed = e.Seed,
+                        RegisteredAt = e.RegisteredAt
+                    }))
+                .ToList();
+
+            return View(pendingEntries);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ApproveEntry(Guid id, int? seed)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null) return redirect!;
+
+            var response = await client.PutAsJsonAsync($"api/TournamentEntry/{id}", new { seed, status = 2 });
+
+            var check = CheckUnauthorized(response);
+            if (check is not null) return check;
+
+            return RedirectToAction("PendingEntries");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectEntry(Guid id, int? seed)
+        {
+            var client = CreateAuthorizedClient(out var redirect);
+            if (client is null) return redirect!;
+
+            var response = await client.PutAsJsonAsync($"api/TournamentEntry/{id}", new { seed, status = 3 });
+
+            var check = CheckUnauthorized(response);
+            if (check is not null) return check;
+
+            return RedirectToAction("PendingEntries");
         }
 
         [HttpPost]

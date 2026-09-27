@@ -1,4 +1,5 @@
 @model List<TournamentResponse>
+@using TournamentManager.Frontend.Models.Enums
 @{
     ViewData["Title"] = "Manage Tournaments";
     Layout = "_Layout";
@@ -60,9 +61,19 @@
                                     })
                                 </span>
                             </td>
-                            <td class="text-end">
+                            <td class="text-end d-flex gap-1 justify-content-end flex-wrap">
                                 <a asp-controller="Admin" asp-action="EditTournament" asp-route-id="@t.Id"
-                                   class="btn btn-sm btn-tm-outline me-1">Edit</a>
+                                   class="btn btn-sm btn-tm-outline">Edit</a>
+                                @if (t.Status == TournamentStatus.Ongoing && t.Matches.Count == 0 && t.Entries.Count(e => e.Status == EntryStatus.Approved) == 8)
+                                {
+                                    <form asp-controller="Admin" asp-action="GenerateBracket" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="@t.Id" />
+                                        <button type="submit" class="btn btn-sm"
+                                                style="border: 1px solid rgba(201,168,76,0.5); color: var(--tm-gold);">
+                                            Generate Bracket
+                                        </button>
+                                    </form>
+                                }
                                 <form asp-controller="Admin" asp-action="DeleteTournament" method="post"
                                       style="display:inline;"
                                       onsubmit="showConfirm(event, 'Delete @t.Name? This cannot be undone.');">
